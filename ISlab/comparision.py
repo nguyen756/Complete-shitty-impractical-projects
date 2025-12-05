@@ -12,7 +12,7 @@ with col1:
     st.header("1. Generate Hash")
     st.info("See how increasing the slider slows down the CPU.")
     raw_password = st.text_input("Enter a Password", value="student123", key="gen_pass")
-    cost = st.slider("Cost Factor (Loops)", min_value=4, max_value=16, value=10)
+    cost = st.slider("Cost Factor (Loops)", min_value=4, max_value=21, value=10)
     iterations = 2 ** cost
     st.caption(f"Math: 2^{cost} = **{iterations:,} iterations**")
     if st.button("Generate Hash"):
@@ -50,4 +50,5 @@ with col2:
                 
                 st.metric(label="Verification Time", value=f"{duration:.4f} seconds")
             except ValueError:
+
                 st.error("Invalid Hash Format.")
