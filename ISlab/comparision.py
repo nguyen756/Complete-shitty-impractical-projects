@@ -17,7 +17,8 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-tab1, tab2, tab3 = st.tabs(["Generator", "Verification", "Cost vs Time Graph"])
+tab1, tab2, tab3, tab4 = st.tabs(["Generator", "Verification", "Cost vs Time Graph", "Rainbow Table Attack"])
+
 with tab1:
     col1, col2 = st.columns([1, 1])
     
@@ -27,7 +28,9 @@ with tab1:
         cost = st.slider("Cost Factor", min_value=4, max_value=20, value=12)
         iterations = 2 ** cost
         st.caption(f"Math: 2^{cost} = **{iterations:,} iterations**")        
-        use_fixed_salt = st.checkbox("Enable Fixed Salt")
+        
+        # Added key="use_fixed_salt" so Tab 4 can see this setting
+        use_fixed_salt = st.checkbox("Enable Fixed Salt", key="use_fixed_salt")
         final_salt = None
         if use_fixed_salt:
             if 'custom_salt_val' not in st.session_state:
@@ -104,12 +107,13 @@ with tab1:
                 """)
             except Exception as e:
                 st.error(f"Could not parse anatomy: {e}")
+
 with tab2:
     st.header("Verify")
     st.info("Paste the hash and enter the password to verify it.")
     
     hash_input = st.text_input("Paste hash here", key="hash_input")
-    check_password = st.text_input("Enter password here", value="student123", key="check_pass") 
+    check_password = st.text_input("Enter password here", value="example6767", key="check_pass") 
     if st.button("Verify Password"):
         if not hash_input:
             st.error("Please paste a hash first!")
@@ -130,6 +134,7 @@ with tab2:
                     
             except ValueError:
                 st.error("Invalid Hash Format.")
+
 with tab3:
     st.header("The Cost Factor and Time Taken")
     cost_range = st.slider("Select Cost Range", 8, 16, (10, 14))
@@ -151,5 +156,49 @@ with tab3:
             
         df = pd.DataFrame(results)
         st.line_chart(df, x="Cost Factor", y="Time (s)")
-        st.dataframe(df, use_container_width=True)
+        st.dataframe(df, width='stretch')
         st.caption("Almost double the time for each +1 in cost factor")
+
+with tab4:
+    
+    st.header("Rainbow Table Attack")
+    leaked_salt_str = "$2b$10$FixedSaltForDemo12345." 
+    leaked_salt = leaked_salt_str.encode()
+    st.error(f"Leaked salt {leaked_salt_str}")
+    col_left, col_right = st.columns(2)
+    with col_left:
+        st.subheader("Stolen Database")
+        try:
+            h_alice = bcrypt.hashpw(b"password", leaked_salt).decode()
+            h_bob = bcrypt.hashpw(b"123456", leaked_salt).decode()
+            h_charlie = bcrypt.hashpw(b"welcome", leaked_salt).decode()
+            stolen_db = pd.DataFrame({
+                "User": ["Alice", "Bob", "Charlie"],
+                "Hash": [h_alice, h_bob, h_charlie]
+            })
+            st.dataframe(stolen_db, width='stretch')
+        except Exception as e:
+            st.error(f"Error generating demo: {e}")
+
+    with col_right:
+        st.subheader("The Attack")
+        common_passwords = ["123456", "password", "admin", "welcome", "qwerty"]
+        st.write(f"Dictionary: {common_passwords}")
+        
+        if st.button("Build Rainbow Table & Crack"):
+            with st.spinner("Generating Rainbow Table from Dictionary..."):
+                rainbow_data = []
+                rainbow_table_map = {}
+                for p in common_passwords:
+                    h = bcrypt.hashpw(p.encode(), leaked_salt).decode()
+                    rainbow_table_map[h] = p
+                    rainbow_data.append({"Password Candidate": p, "Computed Hash": h})
+
+                st.markdown("Generated Rainbow Table")
+                st.dataframe(pd.DataFrame(rainbow_data), use_container_width=True)
+                stolen_db["Recovered Password"] = stolen_db["Hash"].map(rainbow_table_map)
+                stolen_db["Status"] = stolen_db["Recovered Password"].apply(lambda x: "CRACKED" if pd.notna(x) else "SAFE")
+            
+            st.markdown("Final Result")
+            st.dataframe(stolen_db, width='stretch')
+
