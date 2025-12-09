@@ -25,7 +25,7 @@ with tab1:
     with col1:
         st.subheader("Configuration")
         raw_password = st.text_input("Enter a Password", value="example6767", key="gen_pass")
-        cost = st.slider("Cost Factor", min_value=4, max_value=20, value=12)
+        cost = st.slider("Cost Factor", min_value=1, max_value=20, value=12)
         iterations = 2 ** cost
         st.caption(f"Math: 2^{cost} = **{iterations:,} iterations**")        
         
@@ -137,7 +137,7 @@ with tab2:
 
 with tab3:
     st.header("The Cost Factor and Time Taken")
-    cost_range = st.slider("Select Cost Range", 8, 16, (10, 14))
+    cost_range = st.slider("Select Cost Range", 0, 20, (8, 15))
     
     if st.button("Run"):
         results = []
@@ -201,4 +201,5 @@ with tab4:
             
             st.markdown("Final Result")
             st.dataframe(stolen_db, width='stretch')
+
 
