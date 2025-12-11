@@ -186,4 +186,3 @@ with tab4:
                     lambda x: "CRACKED" if pd.notna(x) else "SAFE"
                 )
             st.dataframe(stolen_db, width='stretch')
-
