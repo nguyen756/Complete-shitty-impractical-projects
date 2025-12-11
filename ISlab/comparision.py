@@ -139,7 +139,7 @@ with tab3:
             duration = end - start
             results.append({"Cost Factor": c, "Time (s)": duration})
             progress_bar.progress((i + 1) / len(test_costs))     
-        status_text.text("Done!")
+        status_text.text("Done")
         df = pd.DataFrame(results)
         c_chart, c_data = st.columns([2,1])
         with c_chart:
@@ -148,29 +148,29 @@ with tab3:
             st.dataframe(df, hide_index=True)
 with tab4:
     st.header("Attack on Static Salt") 
-    leaked_salt_str = "$2b$10$FixedSaltForDemo12345." 
+    leaked_salt_str = "$2b$10$FixedSaltForDemo6767." 
     leaked_salt = leaked_salt_str.encode()
     col_left, col_right = st.columns(2)
     with col_left:
-        st.subheader("1. The Stolen Database")
+        st.subheader("The Stolen Database")
         try:
             h_alice = bcrypt.hashpw(b"password", leaked_salt).decode()
             h_bob = bcrypt.hashpw(b"123456", leaked_salt).decode()
             h_charlie = bcrypt.hashpw(b"welcome", leaked_salt).decode()
-            h_dave = bcrypt.hashpw(b"complex99!", leaked_salt).decode()   
+            h_dave = bcrypt.hashpw(b"67676767", leaked_salt).decode()   
             stolen_db = pd.DataFrame({
                 "User": ["Alice", "Bob", "Charlie", "Dave"],
                 "Hash": [h_alice, h_bob, h_charlie, h_dave]
             })
-            st.dataframe(stolen_db, use_container_width=True)
+            st.dataframe(stolen_db, width='stretch')
         except Exception as e:
             st.error(f"Error generating demo DB: {e}")
     with col_right:
-        st.subheader("2. The Attack")
-        common_passwords = ["123456", "password", "admin", "welcome", "qwerty", "iloveyou"]
+        st.subheader("The Attack")
+        common_passwords = ["123456", "password", "admin", "welcome", "qwerty", "tuiiucheem"]
         st.write("Attacker's Dictionary:", common_passwords)
         if st.button("Run Dictionary Attack", type="primary"):           
-            with st.spinner("Cracking..."):
+            with st.spinner("Cracking"):
                 rainbow_map = {}
                 rainbow_data = []                
                 for p in common_passwords:
@@ -185,4 +185,4 @@ with tab4:
                 stolen_db["Status"] = stolen_db["Recovered Password"].apply(
                     lambda x: "CRACKED" if pd.notna(x) else "SAFE"
                 )
-            st.dataframe(stolen_db, use_container_width=True)
+            st.dataframe(stolen_db, width='stretch')
