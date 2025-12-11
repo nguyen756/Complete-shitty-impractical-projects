@@ -148,7 +148,7 @@ with tab3:
             st.dataframe(df, hide_index=True)
 with tab4:
     st.header("Attack on Static Salt") 
-    leaked_salt_str = "$2b$10$FixedSaltForDemo6767." 
+    leaked_salt_str = "$2b$10$FixedSaltForDemo12345." 
     leaked_salt = leaked_salt_str.encode()
     col_left, col_right = st.columns(2)
     with col_left:
@@ -186,3 +186,4 @@ with tab4:
                     lambda x: "CRACKED" if pd.notna(x) else "SAFE"
                 )
             st.dataframe(stolen_db, width='stretch')
+
